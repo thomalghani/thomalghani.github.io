@@ -1,57 +1,147 @@
 ```html
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Risiko dan Dampak Kenaikan Pajak Daerah 2025</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <title>Analisa Kenaikan PBB 2024</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         :root {
-            --primary-blue: #1e3a8a; --secondary-blue: #3b82f6; --accent-blue: #60a5fa;
-            --dark-gray: #374151; --light-gray: #f3f4f6; --success-green: #059669;
-            --warning-orange: #d97706; --danger-red: #dc2626;
+            --primary-blue: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --accent-blue: #60a5fa;
+            --dark-gray: #374151;
+            --light-gray: #f3f4f6;
+            --success-green: #059669;
+            --warning-orange: #d97706;
+            --danger-red: #dc2626;
         }
-        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: var(--dark-gray); }
-        .gradient-bg { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .chart-container { position: relative; height: 400px; width: 100%; }
-        .quote-box { background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%); border-left: 4px solid var(--primary-blue); padding: 1.5rem; font-style: italic; position: relative; }
-        .metric-card { background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; }
-        .metric-number { font-size: 2.5rem; font-weight: 700; color: var(--secondary-blue); }
-        .fade-in { animation: fadeIn 0.8s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .quote-box {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border-left: 4px solid var(--primary-blue);
+            padding: 1.5rem;
+            font-style: italic;
+            position: relative;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-blue);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
+
 <body>
     <header class="gradient-bg text-white py-12">
         <div class="container mx-auto px-4 text-center fade-in">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Riset Risiko dan Dampak Kenaikan Pajak Daerah 2025</h1>
-            <p class="text-lg md:text-xl opacity-90 max-w-4xl mx-auto">Analisis menyeluruh mengenai dampak perubahan kebijakan pajak di berbagai daerah di Indonesia.</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Analisa Kenaikan PBB 2024</h1>
+            <p class="text-lg md:text-xl opacity-90 max-w-4xl mx-auto">Menelaah dampak dan reaksi terhadap kenaikan Pajak Bumi dan Bangunan</p>
         </div>
     </header>
 
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-                <i class="fas fa-clipboard-list mr-3 text-blue-600"></i>Executive Summary
+                <i class="fas fa-info-circle mr-3 text-blue-600"></i>Executive Summary
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <p>Di tahun 2025, kenaikan pajak daerah di Indonesia berpotensi memberikan dampak signifikan pada perekonomian masyarakat, khususnya pada daya beli dan keberlanjutan UMKM. Kenaikan yang drastis, mencapai lebih dari 100%, tidak hanya membebani masyarakat, tetapi juga dapat memicu protes yang meluas. Kebijakan ini muncul dalam konteks pemotongan anggaran daerah yang signifikan, meningkatkan risiko sosial dan ekonomi, dan memerlukan perhatian serius dari pemerintah daerah dan pusat untuk memastikan keberlanjutan dan keadilan sosial.</p>
+                <p class="text-lg text-gray-600">Kenaikan Pajak Bumi dan Bangunan (PBB) di Indonesia pada tahun 2024, terutama dengan peningkatan dramatis di beberapa daerah, telah menimbulkan protes masif dari masyarakat. Kenaikan mencapai 1.000% di beberapa tempat telah memicu ketidakpuasan yang mendalam di antara warganya. Keputusan untuk menaikkan pajak ini diperburuk oleh pengurangan transfer anggaran dari pemerintah pusat, mendorong pemerintah daerah mencari sumber pendapatan baru. Masyarakat menganggap kenaikan ini memberatkan, terutama di tengah kondisi ekonomi yang sulit.</p>
             </div>
         </div>
     </section>
 
-    <section class="py-16 bg-light-gray">
+    <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-                <i class="fas fa-chart-bar mr-3 text-blue-600"></i>Analisis Dampak Kenaikan Pajak
+                <i class="fas fa-chart-line mr-3 text-blue-600"></i>Analisis SWOT
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <p>Menurut penelitian, kenaikan pajak daerah, terutamanya Pajak Bumi dan Bangunan (PBB) dan Pajak Pertambahan Nilai (PPN), akan mempengaruhi daya beli masyarakat. Pada kelompok ekonomi menengah ke bawah, kenaikan pajak ini dapat mengakibatkan pengurangan pengeluaran untuk barang-barang pokok. Lebih jauh, resiko kelangsungan hidup UMKM meningkat karena biaya produksi dan distribusi yang meningkat. Ini berpotensi memperlebar ketimpangan sosial jika tidak diimbangi dengan peningkatan layanan publik yang memadai.</p>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Strengths</h3>
+                <ul class="list-disc ml-6 text-gray-600">
+                    <li>Pendapatan daerah yang meningkat melalui PBB dapat memperbaiki anggaran lokal.</li>
+                    <li>Adanya dorongan untuk memperbaiki sistem perpajakan.</li>
+                </ul>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 mt-8">Weaknesses</h3>
+                <ul class="list-disc ml-6 text-gray-600">
+                    <li>Kenaikan yang tinggi dapat memicu ketidakpuasan publik dan protes.</li>
+                    <li>Kemungkinan mengurangi investasi di daerah tertentu.</li>
+                </ul>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 mt-8">Opportunities</h3>
+                <ul class="list-disc ml-6 text-gray-600">
+                    <li>Meningkatkan kerjasama antara pemerintah pusat dan daerah dalam merumuskan kebijakan.</li>
+                    <li>Menerapkan teknologi untuk sistem perpajakan yang lebih efisien.</li>
+                </ul>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 mt-8">Threats</h3>
+                <ul class="list-disc ml-6 text-gray-600">
+                    <li>Protes masyarakat yang meningkat yang dapat berujung pada ketidakstabilan.</li>
+                    <li>Ancaman dari calon investor yang mundur akibat beban pajak tinggi.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+                <i class="fas fa-users mr-3 text-blue-600"></i>Dampak Terhadap Stakeholder
+            </h2>
+            <div class="max-w-6xl mx-auto fade-in">
+                <p class="text-lg text-gray-600">Kenaikan PBB mempengaruhi berbagai stakeholder, termasuk masyarakat umum, pengusaha, dan pemerintah. Masyarakat umum mengalami beban pajak yang lebih tinggi, sementara pengusaha akan menghadapi tekanan tambahan yang berpotensi membatasi kemampuan mereka untuk berinvestasi dan menciptakan lapangan kerja. Bagi pemerintah daerah, sementara ada potensi peningkatan pendapatan, tindakan tersebut bisa jadi menyebabkan meningkatnya protes yang berujung pada kekacauan sosial.</p>
             </div>
         </div>
     </section>
@@ -62,9 +152,6 @@
                 <i class="fas fa-chart-pie mr-3 text-blue-600"></i>Visualisasi Data
             </h2>
             <div class="bg-white rounded-xl p-8 shadow-lg">
-                <h3 class="text-2xl font-bold mb-6 text-blue-800">
-                     <i class="fas fa-chart-pie mr-2"></i>Pola Kenaikan Pajak
-                </h3>
                 <div class="chart-container">
                     <canvas id="myChart"></canvas>
                 </div>
@@ -72,16 +159,16 @@
         </div>
     </section>
 
-    <section class="py-16 bg-light-gray">
+    <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
                 <i class="fas fa-lightbulb mr-3 text-blue-600"></i>Rekomendasi
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <ul class="list-disc list-inside">
-                    <li>Melakukan sosialisasi publik untuk menjelaskan alasan di balik peningkatan tarif pajak dan dampaknya kepada masyarakat.</li>
-                    <li>Mendengarkan masukan publik melalui musyawarah untuk melibatkan masyarakat dalam pengambilan keputusan.</li>
-                    <li>Menerapkan kebijakan yang adil dengan mempertimbangkan daya beli masyarakat, terutama untuk kelompok berpenghasilan rendah.</li>
+                <ul class="list-disc ml-6 text-gray-600">
+                    <li>Penting bagi pemerintah daerah untuk mempertimbangkan dialog terbuka dengan masyarakat untuk menjelaskan dan merumuskan solusi bersama terhadap peningkatan PBB.</li>
+                    <li>Berdasarkan feedback yang ada, perlu dilakukan evaluasi ulang terhadap kenaikan pajak yang diterapkan agar tidak overburdening.</li>
+                    <li>Perlu diupayakan kebijakan fiskal yang lebih inklusif, dengan penekanan pada peningkatan daya beli masyarakat sebagai respons terhadap pajak yang lebih tinggi.</li>
                 </ul>
             </div>
         </div>
@@ -93,12 +180,12 @@
                 <i class="fas fa-book mr-3 text-blue-600"></i>Sumber Informasi
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <ul class="list-disc list-inside">
-                    <li><a href="https://repository.ut.ac.id/5445/1/2013_4.pdf">Analisis Dampak Pajak Daerah terhadap Pertumbuhan</a></li>
-                    <li><a href="https://ejournal.unsrat.ac.id/index.php/jbie/article/download/27162/26756">Analisis Kontribusi serta Prediksi Pajak</a></li>
-                    <li><a href="https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1284&context=jepi">Analisis Potensi Pajak Daerah untuk Peningkatan PAD</a></li>
-                    <li><a href="https://sites.unnes.ac.id/kimefe/2025/01/dampak-kenaikan-pajak-pertambahan-nilai-12-terhadap-tingkat-konsumsi-masyarakat-indonesia/">Dampak Kenaikan PPN 12%</a></li>
-                    <li><a href="https://www.kppod.org/berita/view?id=1446">Pentingnya Transparansi dan Sosialisasi dalam Kebijakan</a></li>
+                <ul class="list-disc ml-6 text-gray-600">
+                    <li><a href="https://expatindonesia.id/2025/land-and-building-tax-hike-halted-following-nationwide-protests/">Land and Building Tax Hike Halted Following Nationwide Protests</a></li>
+                    <li><a href="https://www.scmp.com/week-asia/economics/article/3322534/indonesia-property-tax-protests-test-prabowos-austerity-drive">In Indonesia, property tax protests test Prabowo's austerity</a></li>
+                    <li><a href="https://muc.co.id/en/article/the-2024-tax-target-agreed-to-rise-slightly-to-idr-19888-trillion">The 2024 Tax Target Agreed to Rise Slightly to IDR 1,988.8 trillion</a></li>
+                    <li><a href="https://www.intellinews.com/outrage-in-indonesia-as-property-tax-soars-by-250-396426/">Outrage in Indonesia as property tax soars by 250%</a></li>
+                    <li><a href="https://www.kompas.id/artikel/en-ramai-ramai-pemda-naikkan-pbb-istana-jangan-dihubungkan-dengan-kebijakan-efisiensi-anggaran">Regional Governments Enthusiastically Increase Property Tax</a></li>
                 </ul>
             </div>
         </div>
@@ -109,21 +196,19 @@
         const myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Pajak Bumi dan Bangunan', 'Pajak Kendaraan', 'Pajak Restoran', 'Pajak Hotel'],
+                labels: ['Cirebon', 'Pati', 'Jombang'],
                 datasets: [{
-                    label: 'Kenaikan Pajak (%)',
-                    data: [250, 100, 150, 200],
+                    label: 'Kenaikan PBB (%)',
+                    data: [1000, 250, 400],
                     backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
+                        'rgba(60, 179, 113, 0.5)',
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(255, 206, 86, 0.5)'
                     ],
                     borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 99, 132, 1)'
+                        'rgba(60, 179, 113, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)'
                     ],
                     borderWidth: 1
                 }]
@@ -131,12 +216,18 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Kenaikan PBB (%)'
+                        }
                     }
-                }
+                },
+                responsive: true
             }
         });
     </script>
 </body>
+
 </html>
 ```
