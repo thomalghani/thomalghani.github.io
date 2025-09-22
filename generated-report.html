@@ -1,106 +1,45 @@
-```html
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisa Mengenai Demo di Indonesia Agustus 2025</title>
+    <title>Analisis Dampak Kenaikan Pajak Daerah 2025</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
         :root {
-            --primary-blue: #1e3a8a;
-            --secondary-blue: #3b82f6;
-            --accent-blue: #60a5fa;
-            --dark-gray: #374151;
-            --light-gray: #f3f4f6;
-            --success-green: #059669;
-            --warning-orange: #d97706;
-            --danger-red: #dc2626;
+            --primary-blue: #1e3a8a; --secondary-blue: #3b82f6; --accent-blue: #60a5fa;
+            --dark-gray: #374151; --light-gray: #f3f4f6; --success-green: #059669;
+            --warning-orange: #d97706; --danger-red: #dc2626;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: var(--dark-gray);
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-
-        .quote-box {
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
-            border-left: 4px solid var(--primary-blue);
-            padding: 1.5rem;
-            font-style: italic;
-            position: relative;
-        }
-
-        .metric-card {
-            background: white;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .metric-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--secondary-blue);
-        }
-
-        .fade-in {
-            animation: fadeIn 0.8s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: var(--dark-gray); }
+        .gradient-bg { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .chart-container { position: relative; height: 400px; width: 100%; }
+        .quote-box { background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%); border-left: 4px solid var(--primary-blue); padding: 1.5rem; font-style: italic; position: relative; }
+        .metric-card { background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; }
+        .metric-number { font-size: 2.5rem; font-weight: 700; color: var(--secondary-blue); }
+        .fade-in { animation: fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-
 <body>
     <header class="gradient-bg text-white py-12">
         <div class="container mx-auto px-4 text-center fade-in">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Analisa Mengenai Demo di Indonesia Agustus 2025</h1>
-            <p class="text-lg md:text-xl opacity-90 max-w-4xl mx-auto">Menelaah penyebab dan dampak unjuk rasa terkait kenaikan pajak yang menyulut protes di seluruh Indonesia</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Analisis Dampak Kenaikan Pajak Daerah 2025</h1>
+            <p class="text-lg md:text-xl opacity-90 max-w-4xl mx-auto">Meneliti risiko dan dampak sosial ekonomi dari kebijakan peningkatan pajak daerah di Indonesia.</p>
         </div>
     </header>
 
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-                <i class="fas fa-info-circle mr-3 text-blue-600"></i>Executive Summary
+                <i class="fas fa-clipboard-list mr-3 text-blue-600"></i>Executive Summary
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <p class="text-lg text-gray-600">Pada bulan Agustus 2025, demonstrasi besar-besaran terjadi di berbagai daerah di Indonesia sebagai respons terhadap kenaikan signifikan Pajak Bumi dan Bangunan (PBB), yang mencapai 250% di beberapa wilayah. Protes tersebut memunculkan frustrasi dan kemarahan di kalangan masyarakat, mendorong langkah-langkah pemerintah untuk meninjau kembali kebijakan pajak yang menstimulasi protes di beberapa daerah, termasuk Pati dan Jombang.</p>
+                <p>Kenaikan pajak daerah di Indonesia pada tahun 2025, termasuk Pajak Bumi dan Bangunan (PBB) dan Pajak Pertambahan Nilai (PPN), diperkirakan memiliki dampak yang signifikan terhadap daya beli masyarakat, khususnya kelompok rentan. Dengan kenaikan yang mencapai hingga 1200% di beberapa daerah, terjadi penurunan konsumsi barang, peningkatan angka kemiskinan, dan ketidakpuasan masyarakat yang memicu aksi protes. Pemda perlu menerapkan kebijakan mitigasi supaya dampak negatif dapat dikelola secara efektif.</p>
             </div>
         </div>
     </section>
@@ -108,29 +47,21 @@
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-                <i class="fas fa-chart-line mr-3 text-blue-600"></i>Analisis SWOT
+                <i class="fas fa-chart-bar mr-3 text-blue-600"></i>Analisis SWOT
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Strengths</h3>
-                <ul class="list-disc ml-6 text-gray-600">
-                    <li>Kesadaran masyarakat terhadap isu pajak dan kebijakan pemerintah meningkat.</li>
-                    <li>Pemerintah dipaksa untuk berkomunikasi lebih baik dengan masyarakat mengenai kebijakan pajak.</li>
-                </ul>
-                <h3 class="text-xl font-bold text-gray-800 mb-4 mt-8">Weaknesses</h3>
-                <ul class="list-disc ml-6 text-gray-600">
-                    <li>Kenaikan pajak yang drastis dapat memicu ketidakpuasan sosial yang lebih luas.</li>
-                    <li>Kemungkinan dampak negatif terhadap investasi daerah.</li>
-                </ul>
-                <h3 class="text-xl font-bold text-gray-800 mb-4 mt-8">Opportunities</h3>
-                <ul class="list-disc ml-6 text-gray-600">
-                    <li>Kesempatan untuk evaluasi dan penyempurnaan kebijakan perpajakan yang lebih adil.</li>
-                    <li>Penguatan kerjasama antara pemerintah, masyarakat, dan sektor swasta.</li>
-                </ul>
-                <h3 class="text-xl font-bold text-gray-800 mb-4 mt-8">Threats</h3>
-                <ul class="list-disc ml-6 text-gray-600">
-                    <li>Peningkatan ketegangan sosial yang dapat berujung pada kekacauan.</li>
-                    <li>Resistensi dari kelompok masyarakat yang merasa tertekan oleh kebijakan fiskal.</li>
-                </ul>
+                <h3 class="font-bold mb-4">Strengths</h3>
+                <p>1. Peningkatan pendapatan daerah untuk pembiayaan pembangunan.<br>
+                2. Potensi memperbaiki kondisi infrastruktur dan layanan publik.</p>
+                <h3 class="font-bold mt-8 mb-4">Weaknesses</h3>
+                <p>1. Risiko penurunan daya beli masyarakat.<br>
+                2. Protes masyarakat yang menandakan ketidakpuasan terhadap pemerintah daerah.</p>
+                <h3 class="font-bold mt-8 mb-4">Opportunities</h3>
+                <p>1. Pengembangan program subsidi untuk barang pokok dan perlindungan sosial.<br>
+                2. Meningkatkan transparansi dan partisipasi dalam keputusan publik.</p>
+                <h3 class="font-bold mt-8 mb-4">Threats</h3>
+                <p>1. Resesi ekonomi jika tidak ada pengelolaan yang baik terhadap kebijakan.<br>
+                2. Pelanggaran hukum jika kebijakan pajak tidak dipatuhi masyarakat.</p>
             </div>
         </div>
     </section>
@@ -138,10 +69,13 @@
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-                <i class="fas fa-users mr-3 text-blue-600"></i>Dampak Terhadap Stakeholder
+                <i class="fas fa-exclamation-triangle mr-3 text-blue-600"></i>Risiko dan Dampak
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <p class="text-lg text-gray-600">Kenaikan PBB menyentuh banyak pihak. Masyarakat umum langsung merasakan dampak dari pajak yang lebih tinggi. Di sisi lain, pemerintah daerah mengandalkan pajak untuk meningkatkan pendapatan, namun saat yang sama, risiko menghadapi protes besar-besaran menjadi tinggi. Selain itu, pengusaha khawatir bahwa kenaikan pajak dapat mengurangi daya saing mereka dalam berinvestasi.</p>
+                <p>Kenaikan pajak yang ekstrim memicu berbagai risiko, yaitu:<br>
+                1. Daya beli masyarakat menurun, terutama bagi mereka yang berpenghasilan rendah.<br>
+                2. Lonjakan protes masyarakat yang bisa berujung pada ketidakstabilan sosial.<br>
+                3. Potensi inflasi yang lebih tinggi akibat lonjakan harga barang dan jasa.</p>
             </div>
         </div>
     </section>
@@ -152,6 +86,9 @@
                 <i class="fas fa-chart-pie mr-3 text-blue-600"></i>Visualisasi Data
             </h2>
             <div class="bg-white rounded-xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6 text-blue-800">
+                    <i class="fas fa-chart-pie mr-2"></i>Perbandingan Kenaikan PBB-P2 di Berbagai Daerah
+                </h3>
                 <div class="chart-container">
                     <canvas id="myChart"></canvas>
                 </div>
@@ -162,14 +99,12 @@
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-                <i class="fas fa-lightbulb mr-3 text-blue-600"></i>Rekomendasi
+                <i class="fas fa-comments mr-3 text-blue-600"></i>Rekomendasi
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <ul class="list-disc ml-6 text-gray-600">
-                    <li>Pemerintah harus mendorong dialog konstruktif dengan masyarakat untuk menjelaskan dasar kenaikan pajak dan mendengarkan keluhan mereka.</li>
-                    <li>Kaji ulang kebijakan pajak agar tidak membebani masyarakat, terutama dalam situasi ekonomi yang sulit.</li>
-                    <li>Implementasikan solusi yang lebih berkelanjutan untuk meningkatkan pendapatan daerah tanpa harus mengandalkan kenaikan pajak yang tinggi.</li>
-                </ul>
+                <p>1. Implementasi program subsidi untuk membantu masyarakat yang terdampak langsung.<br>
+                2. Kebijakan kenaikan pajak sebaiknya dilakukan secara bertahap untuk mengurangi dampak ukur.<br>
+                3. Meningkatkan transparansi melalui sosialisasi kebijakan agar masyarakat lebih memahami alasan di balik kenaikan pajak ini.</p>
             </div>
         </div>
     </section>
@@ -180,12 +115,13 @@
                 <i class="fas fa-book mr-3 text-blue-600"></i>Sumber Informasi
             </h2>
             <div class="max-w-6xl mx-auto fade-in">
-                <ul class="list-disc ml-6 text-gray-600">
-                    <li><a href="https://expatindonesia.id/2025/land-and-building-tax-hike-halted-following-nationwide-protests/">Land and Building Tax Hike Halted Following Nationwide Protests</a></li>
-                    <li><a href="https://www.scmp.com/week-asia/economics/article/3322534/indonesia-property-tax-protests-test-prabowos-austerity-drive">In Indonesia, property tax protests test Prabowo's austerity</a></li>
-                    <li><a href="https://muc.co.id/en/article/the-2024-tax-target-agreed-to-rise-slightly-to-idr-19888-trillion">The 2024 Tax Target Agreed to Rise Slightly to IDR 1,988.8 trillion</a></li>
-                    <li><a href="https://www.intellinews.com/outrage-in-indonesia-as-property-tax-soars-by-250-396426/">Outrage in Indonesia as property tax soars by 250%</a></li>
-                    <li><a href="https://www.kompas.id/artikel/en-ramai-ramai-pemda-naikkan-pbb-istana-jangan-dihubungkan-dengan-kebijakan-efisiensi-anggaran">Regional Governments Enthusiastically Increase Property Tax</a></li>
+                <ul>
+                    <li><a href="https://malaqbipublisher.com/index.php/JIMBE/article/view/388" target="_blank">Analisis Dampak Kenaikan Pajak Pertambahan Nilai (PPN)</a></li>
+                    <li><a href="https://journal.uta45jakarta.ac.id/index.php/MAP/article/download/8311/3146" target="_blank">Dampak Kenaikan PPN Terhadap Pembangunan Kesejahteraan</a></li>
+                    <li><a href="https://jptam.org/index.php/jptam/article/download/15743/11837/28849" target="_blank">Analisis Dampak Pajak Daerah terhadap Kesejahteraan</a></li>
+                    <li><a href="https://repository.ut.ac.id/5445/1/2013_4.pdf" target="_blank">Analisis Dampak Pajak Daerah terhadap Pertumbuhan Ekonomi</a></li>
+                    <li><a href="https://ulilalbabinstitute.id/index.php/EKOMA/article/download/6892/6345/17500" target="_blank">Reformasi Perpajakan: Kenaikan PPN Tahun 2025</a></li>
+                    <li><a href="https://www.kppod.org/berita/view?id=1448" target="_blank">Kenaikan PBB-P2 Dinilai Bebani Ekonomi Warga</a></li>
                 </ul>
             </div>
         </div>
@@ -196,38 +132,23 @@
         const myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Pati', 'Jombang', 'Cirebon'],
+                labels: ['Pati', 'Cirebon', 'Jombang', 'Bone', 'Semarang'],
                 datasets: [{
-                    label: 'Kenaikan PBB (%)',
-                    data: [250, 400, 1000],
-                    backgroundColor: [
-                        'rgba(60, 179, 113, 0.5)',
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(255, 206, 86, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(60, 179, 113, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
+                    label: 'Persentase Kenaikan PBB-P2',
+                    data: [250, 1000, 400, 300, 400],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Kenaikan PBB (%)'
-                        }
+                        beginAtZero: true
                     }
-                },
-                responsive: true
+                }
             }
         });
     </script>
 </body>
-
 </html>
-```
