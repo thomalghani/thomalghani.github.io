@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zabbix & Bliv Demo Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Load D3.js untuk rendering peta & chart -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+        /* --- Global Variables --- */
+        :root {
+            --bg-color: #F3F4F6;
+            --primary-orange: #F97316;
+            --zabbix-red: #D32F2F;
+            --zabbix-green: #22C55E;
+            --map-fill: #CBD5E1; 
+            --map-stroke: #F8FAFC;
+            --map-hover: #94A3B8;
+            --sidebar-width: 240px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Layout Container --- */
+        #app {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* --- Transitions --- */
+        .page-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-active { transform: translateX(0); opacity: 1; z-index: 10; }
+        .page-hidden-left { transform: translateX(-100%); opacity: 0; z-index: 0; }
+        .page-hidden-right { transform: translateX(100%); opacity: 0; z-index: 0; }
+
+        /* --- PAGE 1 Styles --- */
+        .divider-line { height: 4px; background-color: #D1D5DB; width: 150px; margin: 1.5rem auto; }
+        .cta-button {
+            background-color: var(--primary-orange);
+            color: white; font-weight: 600;
+            padding: 16px 32px; border-radius: 6px; font-size: 1.1rem;
+            transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: none; cursor: pointer;
+        }
+        .cta-button:hover { background-color: #EA580C; transform: translateY(-2px); }
+
+
+        /* --- PAGE 2 Styles (Map Dashboard) --- */
+        .dashboard-header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-bottom: 1px solid #E5E7EB;
+            z-index: 20;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+            background-color: #F1F5F9;
+            background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+            background-size: 24px 24px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #map-svg { width: 100%; height: 100%; }
+
+        .province {
+            fill: var(--map-fill); stroke: var(--map-stroke); stroke-width: 0.5px;
+            transition: fill 0.8s ease; cursor: pointer;
+        }
+        .province:hover { fill: var(--map-hover); }
+
+        .alert-group { cursor: pointer; transition: transform 0.8s ease; }
+        .alert-core { fill: var(--zabbix-red); filter: drop-shadow(0 0 2px rgba(0,0,0,0.3)); transition: r 0.3s; }
+        .alert-ripple {
+            fill: var(--zabbix-red); opacity: 0.5; transform-box: fill-box; transform-origin: center;
+            animation: ripple-animation 2s infinite ease-out;
+        }
+        .alert-group.target-point .alert-core { fill: #FF0000; filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8)); }
+        .alert-group.target-point .alert-ripple { animation: ripple-urgent 1.5s infinite ease-out; }
+
+        @keyframes ripple-animation { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
+        @keyframes ripple-urgent { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 0; transform: scale(5); } }
+
+        /* Story Popup */
+        .story-popup {
+            position: absolute; top: 20%; right: 5%; width: 400px; background: white; padding: 30px;
+            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border-left: 6px solid var(--primary-orange);
+            z-index: 60; opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; pointer-events: none;
+        }
+        .story-popup.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .story-title { font-size: 1.1rem; font-weight: 800; color: #1F2937; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .story-content { font-size: 0.95rem; color: #4B5563; line-height: 1.6; margin-bottom: 20px; }
+        .instruction-box { background-color: #FFF7ED; border: 1px solid #FFEDD5; color: #9A3412; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 10px; animation: bounce-subtle 2s infinite; }
+        @keyframes bounce-subtle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        /* Status Panel */
+        .status-panel {
+            position: absolute; left: 50px; top: 50%; transform: translateY(-50%) translateX(-50px);
+            width: 380px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 30px;
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-left: 5px solid var(--zabbix-red);
+            z-index: 50; opacity: 0; pointer-events: none; transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .status-panel.show { opacity: 1; transform: translateY(-50%) translateX(0); pointer-events: auto; }
+        .panel-label { display: inline-block; background-color: #FEF2F2; color: #991B1B; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+        .panel-title { font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 10px; line-height: 1.2; }
+        .panel-desc { font-size: 1rem; line-height: 1.6; color: #4B5563; margin-bottom: 24px; }
+        .panel-data { display: flex; gap: 15px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #E5E7EB; }
+        .data-item span:first-child { display: block; font-size: 0.75rem; color: #6B7280; }
+        .data-item span:last-child { display: block; font-weight: 600; color: #111827; }
+        .btn-action { width: 100%; background-color: var(--zabbix-red); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
+        .btn-action:hover { background-color: #B91C1C; transform: translateY(-1px); }
+
+        #map-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 600; color: #64748B; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+        /* --- PAGE 3: DASHBOARD STYLES --- */
+        .dash-layout { display: flex; height: 100%; position: relative; }
+        
+        /* Sidebar */
+        .dash-sidebar {
+            width: var(--sidebar-width); background: #111827; color: #E5E7EB; display: flex; flex-direction: column;
+        }
+        .sidebar-header { padding: 24px; font-weight: 800; font-size: 1.2rem; color: white; border-bottom: 1px solid #374151; }
+        .sidebar-menu { flex: 1; padding: 20px 0; }
+        .menu-item {
+            padding: 12px 24px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; color: #9CA3AF;
+        }
+        .menu-item:hover, .menu-item.active { background: #1F2937; color: white; border-left: 3px solid var(--primary-orange); }
+        .menu-item i { width: 20px; text-align: center; }
+
+        /* Main Dashboard */
+        .dash-content { flex: 1; background: #F3F4F6; overflow-y: auto; padding: 0; position: relative; }
+        
+        .dash-topbar {
+            background: white; padding: 16px 32px; border-bottom: 1px solid #E5E7EB;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .breadcrumbs { font-size: 0.9rem; color: #6B7280; }
+        .breadcrumbs span { color: #111827; font-weight: 600; }
+        .site-badge { background: #FEF2F2; color: #DC2626; padding: 4px 12px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; border: 1px solid #FECACA; }
+
+        .dash-grid {
+            padding: 32px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+            max-width: 1400px; margin: 0 auto;
+        }
+
+        /* Metrics Cards */
+        .kpi-card {
+            background: white; padding: 20px; border-radius: 8px; border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: relative; /* For annotation positioning */
+        }
+        .kpi-title { font-size: 0.85rem; color: #6B7280; font-weight: 500; margin-bottom: 8px; }
+        .kpi-value { font-size: 1.8rem; font-weight: 700; color: #111827; }
+        .kpi-trend { font-size: 0.85rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        .trend-down { color: #DC2626; }
+        .trend-up { color: #10B981; }
+
+        /* Charts */
+        .chart-container {
+            background: white; border-radius: 8px; border: 1px solid #E5E7EB; padding: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); grid-column: span 2; min-height: 350px;
+            position: relative; /* For highlighting */
+            transition: all 0.5s ease;
+        }
+        .chart-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .chart-title { font-weight: 700; color: #111827; }
+
+        /* --- RCA HIGHLIGHT STYLES --- */
+        .dashboard-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 55; opacity: 0; pointer-events: none; transition: opacity 0.5s;
+        }
+        .dashboard-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .chart-highlight {
+            z-index: 60; 
+            box-shadow: 0 0 0 4px #F97316, 0 20px 50px rgba(0,0,0,0.5) !important;
+            transform: scale(1.02);
+            background: white; /* Prevent transparent background issues */
+            position: relative; /* Ensure z-index works */
+        }
+
+        /* ANNOTATION BUBBLES (SPECIFIC EXPLANATIONS) */
+        .rca-annotation {
+            position: absolute;
+            bottom: 100%; /* Default above */
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            width: 240px;
+            background: white;
+            border: 1px solid #F97316;
+            border-left: 4px solid #F97316;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            font-size: 0.85rem;
+            color: #374151;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+        
+        /* Modifiers for positioning */
+        .rca-annotation.pos-bottom {
+            bottom: auto; top: 100%; margin-top: 16px; margin-bottom: 0;
+        }
+
+        .rca-annotation.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .rca-annotation strong { color: #C2410C; display: block; margin-bottom: 4px; font-size: 0.9rem; }
+
+        /* Arrows for bubbles */
+        .rca-annotation::after, .rca-annotation::before {
+            content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-style: solid;
+        }
+        
+        /* Arrow Down (Default) */
+        .rca-annotation:not(.pos-bottom)::after {
+            top: 100%; border-width: 6px; border-color: white transparent transparent transparent;
+        }
+        .rca-annotation:not(.pos-bottom)::before {
+            top: 100%; margin-top: 1px; border-width: 7px; border-color: #F97316 transparent transparent transparent;
+        }
+
+        /* Arrow Up (for pos-bottom) */
+        .rca-annotation.pos-bottom::after {
+            bottom: 100%; border-width: 6px; border-color: transparent transparent white transparent;
+        }
+        .rca-annotation.pos-bottom::before {
+            bottom: 100%; margin-bottom: 1px; border-width: 7px; border-color: transparent transparent #F97316 transparent;
+        }
+
+        /* Close RCA Button */
+        .rca-close-btn {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #F97316; color: white; padding: 12px 24px; border-radius: 50px;
+            font-weight: 700; box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+            cursor: pointer; z-index: 80; transition: all 0.4s; opacity: 0;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .rca-close-btn.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .rca-close-btn:hover { background: #EA580C; transform: translateX(-50%) translateY(-2px); }
+
+        /* Device Info */
+        .device-info {
+            grid-column: span 1; background: white; border-radius: 8px; border: 1px solid #E5E7EB; padding: 24px;
+        }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F3F4F6; font-size: 0.9rem; }
+        .info-label { color: #6B7280; }
+        .info-val { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+        /* Logs */
+        .log-panel {
+            grid-column: span 3; background: white; border-radius: 8px; border: 1px solid #E5E7EB; padding: 24px; position: relative;
+        }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .log-table th { text-align: left; padding: 12px; background: #F9FAFB; color: #6B7280; font-weight: 600; }
+        .log-table td { padding: 12px; border-bottom: 1px solid #F3F4F6; color: #374151; }
+        .severity-critical { color: #DC2626; font-weight: 600; }
+        
+        /* Back Button Page 3 */
+        .btn-back-dash {
+            padding: 8px 16px; border: 1px solid #D1D5DB; border-radius: 6px; 
+            background: white; cursor: pointer; font-size: 0.9rem; color: #374151;
+            transition: all 0.2s;
+        }
+        .btn-back-dash:hover { background: #F3F4F6; }
+
+        /* SVG Chart Styles */
+        .line-path { fill: none; stroke: #3B82F6; stroke-width: 2; }
+        .line-path-red { fill: none; stroke: #EF4444; stroke-width: 2; }
+        .axis text { font-size: 10px; fill: #9CA3AF; }
+        .axis line, .axis path { stroke: #E5E7EB; }
+        .grid-line { stroke: #F3F4F6; stroke-dasharray: 4; }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    
+    <!-- ================= PAGE 1 (Landing) ================= -->
+    <div id="page1" class="page-container page-active">
+        <!-- Header -->
+        <header class="w-full px-8 py-6 md:px-16 md:py-8 flex justify-between items-center bg-white border-b border-gray-100">
+            <div class="flex items-center gap-4 md:gap-8">
+                <img src="https://assets.zabbix.com/img/logo/zabbix.svg" alt="Zabbix Logo" class="h-8 md:h-10 w-auto object-contain">
+                <img src="https://cdn.prod.website-files.com/659ced43e151631d25d99530/65d46df698ce0d7d8b130018_Logo%20Bliv%20Black.svg" alt="Bliv Logo" class="h-6 md:h-8 w-auto object-contain mt-1">
+            </div>
+            <div>
+                <img src="https://cdn.prod.website-files.com/669a15139935295140be64d9/669e0284c1794cea860a6a0c_bangunindo%20Logos%20(1).png" alt="Bangunindo Logo" class="h-10 md:h-14 w-auto object-contain">
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col justify-center items-center px-6 max-w-5xl mx-auto w-full pb-20 bg-white">
+            <h1 class="text-3xl md:text-5xl font-bold text-center mb-4 text-gray-800 leading-tight">
+                ZABBIX & BLIV: Menjembatani Kesenjangan,<br />
+                Mengamankan Jaringan Telekomunikasi Indonesia.
+            </h1>
+            <div class="divider-line"></div>
+            <p class="text-gray-600 text-center text-lg md:text-xl max-w-3xl leading-relaxed mb-12">
+                Industri telekomunikasi Indonesia yang luas menghadapi tantangan signifikan dalam menjaga konektivitas yang stabil di ribuan pulaunya, terutama di wilayah terpencil.
+            </p>
+            <button class="cta-button" onclick="goToPage2()">
+                Let's Start the Journey
+            </button>
+        </main>
+    </div>
+
+
+    <!-- ================= PAGE 2 (Map Dashboard) ================= -->
+    <div id="page2" class="page-container page-hidden-right">
+        <div class="dashboard-header">
+            <div class="flex items-center gap-4">
+                <button onclick="goToPage1()" class="text-gray-500 hover:text-gray-800">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <div class="flex flex-col">
+                    <span class="text-xs text-gray-500 font-bold tracking-wider">NETWORK STATUS</span>
+                    <span class="text-lg font-bold text-gray-800">Indonesia Region Overview</span>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="px-3 py-1 bg-green-100 text-green-700 rounded text-sm font-medium flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span> System Normal
+                </div>
+                <div class="px-3 py-1 bg-red-100 text-red-700 rounded text-sm font-medium flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span> Alerts: 34
+                </div>
+            </div>
+        </div>
+
+        <div class="map-wrapper" id="map-container">
+            <div id="map-loading">
+                <i class="fas fa-circle-notch fa-spin text-3xl text-orange-500"></i>
+                <span>Memuat Peta Indonesia...</span>
+            </div>
+
+            <!-- STORY POPUP -->
+            <div class="story-popup" id="storyPopup">
+                <div class="story-title">
+                    <i class="fas fa-users-cog text-orange-600"></i>
+                    Tantangan Network Operations Center
+                </div>
+                <div class="story-content">
+                    <p>Tim NOC adalah garda terdepan yang bertugas menjaga ketersediaan layanan 24/7. Namun, mereka sering kali kewalahan oleh volume data dan peringatan yang masif.</p>
+                    <br>
+                    <p>Seringkali, tim menerima ribuan email peringatan setiap hari, di mana mayoritas (bahkan hingga 90%) adalah <b>false positives</b> atau isu minor seperti port flapping.</p>
+                </div>
+                <div class="instruction-box">
+                    <i class="fas fa-mouse-pointer"></i>
+                    Silakan klik titik merah yang berdenyut untuk investigasi.
+                </div>
+            </div>
+
+            <!-- STATUS PANEL -->
+            <div class="status-panel" id="statusPanel">
+                <div class="panel-label">
+                    <i class="fas fa-exclamation-circle"></i> Problem Detected
+                </div>
+                <h2 class="panel-title">High Latency - Jakarta Core</h2>
+                <p class="panel-desc">
+                    Terdeteksi anomali latensi tinggi pada router core Jakarta. Sistem Zabbix telah memfilter 450 alert minor terkait dan mengisolasi root cause ini.
+                </p>
+                <div class="panel-data">
+                    <div class="data-item"><span>LATENCY</span><span>450 ms</span></div>
+                    <div class="data-item"><span>IMPACT</span><span>High</span></div>
+                    <div class="data-item"><span>STATUS</span><span class="text-red-600">CRITICAL</span></div>
+                </div>
+                <!-- Tombol ke Halaman 3 -->
+                <button class="btn-action" onclick="goToPage3()">
+                    <i class="fas fa-search-plus"></i>
+                    Analisa Root Cause
+                </button>
+            </div>
+
+            <svg id="map-svg"></svg>
+        </div>
+    </div>
+
+
+    <!-- ================= PAGE 3 (Detail Dashboard) ================= -->
+    <div id="page3" class="page-container page-hidden-right">
+        
+        <!-- BACKDROP OVERLAY FOR HIGHLIGHT -->
+        <div id="dashboard-overlay" class="dashboard-overlay"></div>
+        
+        <!-- CONTROL BUTTON TO EXIT RCA -->
+        <button id="rca-close-btn" class="rca-close-btn" onclick="closeRcaPopup()">
+            <i class="fas fa-check"></i> Selesai Analisa
+        </button>
+
+        <div class="dash-layout">
+            <!-- Sidebar -->
+            <aside class="dash-sidebar">
+                <div class="sidebar-header">
+                    <span style="color: #F97316;">BLIV</span>.NMS
+                </div>
+                <div class="sidebar-menu">
+                    <div class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</div>
+                    <div class="menu-item"><i class="fas fa-server"></i> Devices</div>
+                    <div class="menu-item"><i class="fas fa-exclamation-triangle"></i> Alarms <span class="bg-red-600 text-white text-xs px-2 rounded-full ml-auto">1</span></div>
+                    <div class="menu-item"><i class="fas fa-network-wired"></i> Topology</div>
+                    <div class="menu-item"><i class="fas fa-cog"></i> Settings</div>
+                </div>
+                <div class="p-4 border-t border-gray-700 text-xs text-gray-500">
+                    Logged in as <span class="text-white">Admin NOC</span>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dash-content">
+                <!-- Topbar -->
+                <div class="dash-topbar">
+                    <div class="flex items-center gap-4">
+                        <button class="btn-back-dash" onclick="goToPage2()">
+                            <i class="fas fa-arrow-left"></i> Back to Map
+                        </button>
+                        <div class="breadcrumbs">
+                            Infrastructure / Jakarta Region / Core Network / <span>BTS-JKT-CORE-01</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="site-badge">
+                            <i class="fas fa-circle text-xs mr-1"></i> CRITICAL
+                        </div>
+                        <div class="text-sm text-gray-500">Last updated: Just now</div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dash-grid">
+                    
+                    <!-- KPI Cards (Added specific annotations inside) -->
+                    
+                    <!-- Latency Card -->
+                    <div class="kpi-card rca-target">
+                        <div class="rca-annotation">
+                            <strong>High Latency Analysis</strong>
+                            Lonjakan 320% (452ms) mengindikasikan antrian paket ekstrem, seringkali disebabkan oleh saturasi link fisik.
+                        </div>
+                        <div class="kpi-title">Latency (RTT)</div>
+                        <div class="kpi-value text-red-600">452 <span class="text-lg text-gray-400">ms</span></div>
+                        <div class="kpi-trend trend-down"><i class="fas fa-arrow-up"></i> +320% vs avg</div>
+                    </div>
+                    
+                    <!-- Packet Loss Card -->
+                    <div class="kpi-card rca-target">
+                         <div class="rca-annotation">
+                            <strong>Packet Loss Analysis</strong>
+                            Nilai 12.5% sangat kritis. Ini bukan sekadar trafik penuh, melainkan indikasi kuat kerusakan fisik (CRC Errors).
+                        </div>
+                        <div class="kpi-title">Packet Loss</div>
+                        <div class="kpi-value text-red-600">12.5 <span class="text-lg text-gray-400">%</span></div>
+                        <div class="kpi-trend trend-down"><i class="fas fa-arrow-up"></i> Critical Level</div>
+                    </div>
+
+                    <div class="kpi-card"> <!-- Not highlighted -->
+                        <div class="kpi-title">Active Users</div>
+                        <div class="kpi-value">1,240</div>
+                        <div class="kpi-trend trend-down"><i class="fas fa-arrow-down"></i> -15% Impacted</div>
+                    </div>
+
+                    <!-- Throughput Card -->
+                    <div class="kpi-card rca-target">
+                         <div class="rca-annotation">
+                            <strong>Traffic Drop Analysis</strong>
+                            Penurunan throughput drastis adalah efek samping dari protokol TCP yang melakukan 'back-off' saat packet loss tinggi terjadi.
+                        </div>
+                        <div class="kpi-title">Throughput</div>
+                        <div class="kpi-value">4.2 <span class="text-lg text-gray-400">Gbps</span></div>
+                        <div class="kpi-trend trend-down"><i class="fas fa-arrow-down"></i> Traffic Drop</div>
+                    </div>
+
+                    <!-- Main Charts (Added annotation) -->
+                    <div id="chart-card-container" class="chart-container rca-target" style="grid-column: span 3;">
+                         <div class="rca-annotation pos-bottom" style="left: 70%; width: 280px;">
+                            <strong>Visual Correlation</strong>
+                            Perhatikan titik silang (X) pada pukul 14:32. Garis Merah (Latency) naik tajam tepat saat Garis Biru (Traffic) turun. Pola ini adalah signature klasik dari <b>Link Degradation</b>.
+                        </div>
+                        <div class="chart-header">
+                            <h3 class="chart-title">Network Interface Traffic & Latency</h3>
+                            <select class="border rounded px-2 text-sm text-gray-600">
+                                <option>Last 1 Hour</option>
+                                <option>Last 24 Hours</option>
+                            </select>
+                        </div>
+                        <div id="main-chart" style="width: 100%; height: 280px;"></div>
+                    </div>
+
+                    <!-- Device Info Side -->
+                    <div class="device-info" style="grid-column: span 1;">
+                        <h3 class="chart-title mb-4">Device Details</h3>
+                        <div class="info-row">
+                            <span class="info-label">Hostname</span>
+                            <span class="info-val">JKT-CR-RTR-01</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">IP Address</span>
+                            <span class="info-val">10.20.100.1</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Model</span>
+                            <span class="info-val">Cisco ASR 9000</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Uptime</span>
+                            <span class="info-val">142d 12h</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">CPU Load</span>
+                            <span class="info-val text-orange-500">78%</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Temp</span>
+                            <span class="info-val">42°C</span>
+                        </div>
+                        <div class="mt-6">
+                             <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded border border-gray-300">
+                                <i class="fas fa-terminal mr-2"></i> SSH Access
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Logs / Alarms (Added annotation) -->
+                    <div class="log-panel rca-target" style="grid-column: span 4;">
+                         <div class="rca-annotation" style="left: 20%;">
+                            <strong>Log Confirmation</strong>
+                            Log 'CRITICAL' mengonfirmasi bahwa trigger otomatis Zabbix telah aktif mendeteksi anomali fisik ini secara real-time.
+                        </div>
+                        <h3 class="chart-title mb-4">Recent Alerts & Logs</h3>
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Severity</th>
+                                    <th>Message</th>
+                                    <th>Source</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-red-50">
+                                    <td>14:32:05</td>
+                                    <td><span class="severity-critical">CRITICAL</span></td>
+                                    <td>High Latency > 400ms detected on interface Gi0/0/1</td>
+                                    <td>Zabbix Trigger</td>
+                                    <td><span class="text-red-600 font-bold">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>14:30:15</td>
+                                    <td><span class="text-orange-500 font-semibold">WARNING</span></td>
+                                    <td>Packet Loss > 5% detected</td>
+                                    <td>Zabbix Trigger</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>14:15:00</td>
+                                    <td><span class="text-green-600 font-semibold">INFO</span></td>
+                                    <td>Configuration change detected (User: admin)</td>
+                                    <td>Syslog</td>
+                                    <td>Logged</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Global Variables for Map ---
+    let mapInitialized = false;
+    let svg, g, projection, pathGenerator;
+    let geoJsonData = null; 
+
+    // --- NAVIGATION FUNCTIONS ---
+    
+    // Page 1 -> Page 2
+    function goToPage2() {
+        const page1 = document.getElementById('page1');
+        const page2 = document.getElementById('page2');
+        const button = document.querySelector('.cta-button');
+
+        button.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Loading...";
+        
+        setTimeout(() => {
+            page1.classList.remove('page-active');
+            page1.classList.add('page-hidden-left');
+
+            page2.classList.remove('page-hidden-right');
+            page2.classList.add('page-active');
+            
+            if (!mapInitialized) {
+                initMap();
+            } else {
+                resetMapAndStartDemo();
+            }
+            setTimeout(() => { button.innerHTML = "Let's Start the Journey"; }, 1000);
+        }, 800);
+    }
+
+    // Page 2 -> Page 1
+    function goToPage1() {
+        document.getElementById('page2').classList.remove('page-active');
+        document.getElementById('page2').classList.add('page-hidden-right');
+        
+        document.getElementById('page1').classList.remove('page-hidden-left');
+        document.getElementById('page1').classList.add('page-active');
+        
+        document.getElementById('storyPopup').classList.remove('show');
+        document.getElementById('statusPanel').classList.remove('show');
+    }
+
+    // Page 2 -> Page 3 (NEW: To Dashboard)
+    function goToPage3() {
+        const page2 = document.getElementById('page2');
+        const page3 = document.getElementById('page3');
+        const btn = document.querySelector('#statusPanel .btn-action');
+
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Opening...";
+
+        setTimeout(() => {
+            page2.classList.remove('page-active');
+            page2.classList.add('page-hidden-left');
+
+            page3.classList.remove('page-hidden-right');
+            page3.classList.add('page-active');
+            
+            // Render Dashboard Chart
+            renderDashboardChart();
+
+            // Trigger RCA Popup Sequence
+            setTimeout(showRcaAnalysis, 1200);
+
+            // Reset Button Text
+            btn.innerHTML = "<i class='fas fa-search-plus'></i> Analisa Root Cause";
+        }, 800);
+    }
+
+    // Page 3 -> Page 2 (Back)
+    function backToPage2() {
+        const page2 = document.getElementById('page2');
+        const page3 = document.getElementById('page3');
+
+        page3.classList.remove('page-active');
+        page3.classList.add('page-hidden-right');
+
+        page2.classList.remove('page-hidden-left');
+        page2.classList.add('page-active');
+        
+        closeRcaPopup(); // Ensure popup is closed
+    }
+
+    // --- RCA FUNCTIONS (NEW BUBBLE LOGIC) ---
+    function showRcaAnalysis() {
+        const overlay = document.getElementById('dashboard-overlay');
+        const closeBtn = document.getElementById('rca-close-btn');
+        
+        // 1. Activate Overlay (Dim Background)
+        overlay.classList.add('active');
+        closeBtn.classList.add('show');
+
+        // 2. Highlight targets AND Show Annotations
+        const targets = document.querySelectorAll('.rca-target');
+        targets.forEach(el => {
+            el.classList.add('chart-highlight');
+            const annotation = el.querySelector('.rca-annotation');
+            if(annotation) {
+                annotation.classList.add('show');
+            }
+        });
+    }
+
+    function closeRcaPopup() {
+        const overlay = document.getElementById('dashboard-overlay');
+        const closeBtn = document.getElementById('rca-close-btn');
+        
+        // Remove active states
+        overlay.classList.remove('active');
+        closeBtn.classList.remove('show');
+        
+        // Remove highlight and hide annotations
+        const targets = document.querySelectorAll('.rca-target');
+        targets.forEach(el => {
+            el.classList.remove('chart-highlight');
+            const annotation = el.querySelector('.rca-annotation');
+            if(annotation) {
+                annotation.classList.remove('show');
+            }
+        });
+    }
+
+    // --- MAP FUNCTIONS (Page 2) ---
+    function initMap() {
+        const width = document.getElementById('map-container').clientWidth;
+        const height = document.getElementById('map-container').clientHeight;
+        svg = d3.select("#map-svg");
+        g = svg.append("g");
+        projection = d3.geoEquirectangular().center([118, -5]).scale(width * 1.3).translate([width / 2, height / 2]); 
+        pathGenerator = d3.geoPath().projection(projection);
+        const geoJsonUrl = "https://raw.githubusercontent.com/superpikar/indonesia-geojson/master/indonesia-province-simple.json";
+
+        d3.json(geoJsonUrl).then(function(data) {
+            document.getElementById('map-loading').style.display = 'none';
+            geoJsonData = data; 
+            g.selectAll("path").data(data.features).enter().append("path")
+                .attr("d", pathGenerator).attr("class", "province").attr("id", (d, i) => "province-" + i)
+                .append("title").text(d => d.properties.Propinsi);
+            mapInitialized = true;
+            addPointsToAllProvinces();
+            setTimeout(startDemoSequence, 1000);
+        }).catch(err => console.error(err));
+    }
+
+    function addPointsToAllProvinces() {
+        if (!geoJsonData) return;
+        g.selectAll(".alert-group").remove();
+        geoJsonData.features.forEach(function(feature, index) {
+            const centroid = pathGenerator.centroid(feature);
+            const x = centroid[0];
+            const y = centroid[1];
+            const isTarget = feature.properties.Propinsi.toLowerCase().includes("jakarta");
+            if (!isNaN(x) && !isNaN(y)) {
+                const alertGroup = g.append("g")
+                    .attr("class", `alert-group ${isTarget ? 'target-point' : ''}`)
+                    .attr("id", isTarget ? 'target-jakarta' : `point-${index}`)
+                    .attr("transform", `translate(${x},${y})`)
+                    .on("click", () => { if(isTarget) handleTargetClick(); });
+                alertGroup.append("circle").attr("class", "alert-ripple").attr("r", 6);
+                alertGroup.append("circle").attr("class", "alert-core").attr("r", 3);
+            }
+        });
+    }
+
+    function startDemoSequence() {
+        const width = document.getElementById('map-container').clientWidth;
+        const height = document.getElementById('map-container').clientHeight;
+        const targetLong = 107.5; const targetLat = -6.5; const zoomScale = 3.5; 
+        const [x, y] = projection([targetLong, targetLat]);
+        const t = d3.transition().duration(2000).ease(d3.easeCubicOut);
+        g.transition(t).attr("transform", `translate(${width/2},${height/2}) scale(${zoomScale}) translate(${-x},${-y})`)
+         .on("end", () => document.getElementById('storyPopup').classList.add('show'));
+        g.selectAll("path").transition(t).style("stroke-width", 0.5 / zoomScale + "px");
+    }
+
+    function handleTargetClick() {
+        document.getElementById('storyPopup').classList.remove('show');
+        document.getElementById('statusPanel').classList.add('show');
+        d3.select("#target-jakarta .alert-core").style("fill", "#EA580C");
+    }
+
+    function resetMapAndStartDemo() {
+        g.transition().duration(0).attr("transform", "translate(0,0) scale(1)");
+        g.selectAll("path").style("stroke-width", "0.5px");
+        document.getElementById('statusPanel').classList.remove('show');
+        setTimeout(startDemoSequence, 500);
+    }
+
+    // --- DASHBOARD CHARTS (Page 3) ---
+    function renderDashboardChart() {
+        const container = document.getElementById('main-chart');
+        container.innerHTML = ''; // Clear previous
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const margin = {top: 20, right: 30, bottom: 30, left: 50};
+
+        const svgChart = d3.select("#main-chart")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const chartW = width - margin.left - margin.right;
+        const chartH = height - margin.top - margin.bottom;
+
+        // Dummy Data: 20 points
+        const data = Array.from({length: 20}, (_, i) => ({
+            time: i,
+            latency: i > 14 ? 300 + Math.random()*150 : 20 + Math.random()*10, // Spike at end
+            traffic: i > 14 ? 10 + Math.random()*5 : 80 + Math.random()*20 // Drop at end
+        }));
+
+        // Scales
+        const x = d3.scaleLinear().domain([0, 19]).range([0, chartW]);
+        const yLeft = d3.scaleLinear().domain([0, 500]).range([chartH, 0]); // Latency
+        const yRight = d3.scaleLinear().domain([0, 120]).range([chartH, 0]); // Traffic
+
+        // Axes
+        svgChart.append("g")
+            .attr("transform", `translate(0,${chartH})`)
+            .attr("class", "axis")
+            .call(d3.axisBottom(x).ticks(5).tickFormat(d => `14:${30+d}`));
+
+        svgChart.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(yLeft).ticks(5));
+            
+        // Grid lines
+        svgChart.append("g")
+            .attr("class", "grid-line")
+            .call(d3.axisLeft(yLeft).tickSize(-chartW).tickFormat(""))
+            .style("opacity", 0.1);
+
+        // Line Generators
+        const lineLatency = d3.line().x(d => x(d.time)).y(d => yLeft(d.latency)).curve(d3.curveMonotoneX);
+        const lineTraffic = d3.line().x(d => x(d.time)).y(d => yRight(d.traffic)).curve(d3.curveMonotoneX);
+
+        // Draw Lines
+        // Traffic (Blue)
+        svgChart.append("path")
+            .datum(data)
+            .attr("class", "line-path")
+            .attr("d", lineTraffic)
+            .style("stroke", "#3B82F6")
+            .style("stroke-width", 3);
+            
+        // Latency (Red - Critical)
+        svgChart.append("path")
+            .datum(data)
+            .attr("class", "line-path-red")
+            .attr("d", lineLatency)
+            .style("stroke", "#EF4444")
+            .style("stroke-width", 3)
+            .style("stroke-dasharray", "5,5"); // Dashed for effect
+
+        // Legend
+        svgChart.append("circle").attr("cx", 20).attr("cy", -10).attr("r", 4).style("fill", "#3B82F6");
+        svgChart.append("text").attr("x", 30).attr("y", -10).text("Traffic (Gbps)").style("font-size", "12px").style("fill", "#374151");
+
+        svgChart.append("circle").attr("cx", 120).attr("cy", -10).attr("r", 4).style("fill", "#EF4444");
+        svgChart.append("text").attr("x", 130).attr("y", -10).text("Latency (ms)").style("font-size", "12px").style("fill", "#374151");
+        
+        // Add "Event" marker
+        svgChart.append("line")
+            .attr("x1", x(14)).attr("y1", 0)
+            .attr("x2", x(14)).attr("y2", chartH)
+            .style("stroke", "#DC2626").style("stroke-width", 1).style("stroke-dasharray", "2,2");
+            
+        svgChart.append("text")
+            .attr("x", x(14)).attr("y", 10)
+            .text("Alert Triggered")
+            .style("fill", "#DC2626").style("font-size", "10px").attr("dx", 5);
+    }
+
+    window.addEventListener("resize", function() {
+        if(mapInitialized && geoJsonData) {
+            // Simple re-init for demo stability on resize
+            document.getElementById('map-svg').innerHTML = '';
+            initMap();
+        }
+        // Resize chart if on page 3
+        if(document.getElementById('page3').classList.contains('page-active')) {
+             renderDashboardChart();
+        }
+    });
+
+</script>
+
+</body>
+</html>
